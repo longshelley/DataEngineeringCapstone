@@ -8,9 +8,9 @@ from data_vis import DataVisualization
 if __name__ == "__main__":
 
     spark = SparkSession.builder.appName('capstonedemo').getOrCreate()
-    branchdf = spark.read.json("cdw_sapp_branch.json")
-    creditdf = spark.read.json("cdw_sapp_credit.json")
-    customerdf = spark.read.json("cdw_sapp_customer.json")
+    branchdf = spark.read.json("..\\data\\cdw_sapp_branch.json")
+    creditdf = spark.read.json("..\\data\\cdw_sapp_credit.json")
+    customerdf = spark.read.json("..\\data\\cdw_sapp_customer.json")
 
     CCHandler(branchdf, creditdf, customerdf)
 
