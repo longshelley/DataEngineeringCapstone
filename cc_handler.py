@@ -91,7 +91,7 @@ class CCHandler:
         else:
             print("Failed to retrieve loan data from the API.")
         
-    def get_transactions(self, spark):
+    def get_transactions(self, input_zip_code, input_month, input_year, spark):
         self.creditdf.createOrReplaceTempView("transactions")
         self.customerdf.createOrReplaceTempView("customers")
 
@@ -157,7 +157,7 @@ class CCHandler:
                      updated_cust_state, updated_cust_zip, 
                      updated_cust_phone, updated_cust_email):
         # Read the JSON file
-        with open("cdw_sapp_customer.json", "r") as file:
+        with open("..\\data\\cdw_sapp_customer.json", "r") as file:
             customers_json = [json.loads(line) for line in file]
 
         # Find the customer with the specified SSN and update their details
@@ -187,7 +187,7 @@ class CCHandler:
                 break
 
         # Write the updated customer data back to the JSON file
-        with open("cdw_sapp_customer.json", "w") as file:
+        with open("..\\data\\cdw_sapp_customer.json", "w") as file:
             for customer in customers_json:
                 json.dump(customer, file)
                 file.write("\n")

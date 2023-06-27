@@ -1,4 +1,5 @@
 import os
+import keyboard
 from time import sleep
 from subprocess import call
 
@@ -97,18 +98,30 @@ def choice_1_1(spark):
     input_month = int(input("Enter month: "))   #2
     input_year = int(input("Enter year: "))     #2018
     CCHandler.get_transactions(input_zip_code, input_month, input_year, spark)
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_one()
     
 def choice_1_2(spark):
     clear()
     print("The total number and values of transactions for given type")
     transaction_type = input("Enter transaction type: ").title()    #grocery
     CCHandler.get_count_value(transaction_type, spark)
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_one()
 
 def choice_1_3(spark):
     clear()
     print("The total number and values of transactions for branches in a given state")
     state = input("Enter state abbreviation: ").upper() #ny
     CCHandler.get_value_total( state, spark)
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_one()
 
 def choice_1_4(spark):
     clear()
@@ -118,11 +131,14 @@ def choice_1_4(spark):
 
     print("1. Modify the customer details")
     print("2. Show transactions made between two dates")
-    choice = input("--> ")
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
     if choice == "1":
         select_1_4_1(ssn, spark)
     elif choice == "2":
         select_1_4_2(ssn, spark)
+    else:
+        option_one()
 
 def choice_1_5():
     clear()
@@ -131,6 +147,10 @@ def choice_1_5():
     input_month = int(input("Enter month: "))   #6
     input_year = int(input("Enter year: "))     #2018
     CCHandler.get_monthly_bill(credit_card_number, input_month, input_year)
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_one()
 
 def select_1_4_1(ssn):
     clear()
@@ -152,6 +172,10 @@ def select_1_4_1(ssn):
                 updated_cust_state, updated_cust_zip, 
                 updated_cust_phone, updated_cust_email)
     print("Customer details updated and saved.")
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_one()
 
 def select_1_4_2(ssn):
     clear()
@@ -160,31 +184,70 @@ def select_1_4_2(ssn):
     end_date = (input("Enter end date (YYYY-MM-DD): "))     #2018-08-04
     # Check to make sure end_date comes after start_date and follow format
     CCHandler.get_transactions_between(start_date, end_date, ssn)
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_one()
 
 def choice_2_1():
     clear()
     print("Which transaction type has a high rate of transactions")
+    CCHandler.transaction_type_count()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
 
 def choice_2_2():
     clear()
     print("Which state has a high number of customers")
+    CCHandler.state_customer_count()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
 
 def choice_2_3():
     clear()
     print("The sum of all transactions for the top 10 customers")
+    CCHandler.top_10_customer()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
 
 def choice_2_4():
     clear()
     print("The percentage of applications approved for self-employed applicants")
+    CCHandler.approved_selfemploy()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
     
 def choice_2_5():
     clear()
     print("The percentage of rejection for married male applicants")
+    CCHandler.rejected_married_male()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
 
 def choice_2_6():
     clear()
     print("The top three months with the largest transaction data")
+    CCHandler.top_3_months()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
     
 def choice_2_7():
     clear()
     print("Which branch processed the highest total dollar value of healthcare transactions")
+    CCHandler.branch_highest_value()
+    print("Press any other key to Go Back--> ")
+    choice = keyboard.read_key()
+    if choice:
+        option_two()
