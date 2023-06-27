@@ -65,13 +65,35 @@ class CCHandler:
             .option("password", "password") \
             .save()
         
+        url = "https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json"
+        response = requests.get(url)
+        status_code = response.status_code
+
+        # Check if status code is 200 (OK)
+        if status_code == 200:
+            # Retrieve the JSON data from the response
+            data = response.json()
+            
+            # Create SparkSession
+            spark = SparkSession.builder.appName("Loan Application").getOrCreate()
+            
+            # Convert JSON data to a DataFrame
+            self.loandf = spark.read.json(spark.sparkContext.parallelize([data]))
+            
+            # Write the DataFrame to RDBMS table
+            self.loandf.write.format("jdbc") \
+                .option("url", "jdbc:mysql://localhost:3306/creditcard_capstone") \
+                .option("dbtable", "CDW_SAPP_loan_application") \
+                .option("user", "root") \
+                .option("password", "password") \
+                .mode("overwrite") \
+                .save()
+        else:
+            print("Failed to retrieve loan data from the API.")
+        
     def get_transactions(self, spark):
         self.creditdf.createOrReplaceTempView("transactions")
         self.customerdf.createOrReplaceTempView("customers")
-
-        input_zip_code = input("Enter zip code: ")  #23223
-        input_month = int(input("Enter month: "))   #2
-        input_year = int(input("Enter year: "))     #2018
 
         # Query to filter transactions by zip code, month, and year, ordered by day in descending order
         query = """
@@ -87,6 +109,8 @@ class CCHandler:
         result.show()
         
     def get_count_value(self, transaction_type, spark):
+        self.creditdf.createOrReplaceTempView("transactions")
+
         # Query to count how many transaction and calculate total value of transactions by type
         query = """
         SELECT TRANSACTION_TYPE, COUNT(*) AS TRANSACTION_COUNT, SUM(TRANSACTION_VALUE) AS TOTAL_VALUE
@@ -100,6 +124,7 @@ class CCHandler:
 
     def get_value_total(self, state, spark):
         self.branchdf.createOrReplaceTempView("branches")
+        self.creditdf.createOrReplaceTempView("transactions")
 
         # Query to count the number and calculate the total value of transactions by branch and state
         query = """
@@ -114,6 +139,8 @@ class CCHandler:
         result.show()
 
     def get_customer(self, ssn, spark):
+        self.customerdf.createOrReplaceTempView("customers")
+        
         # Query for customer
         query = """
         SELECT *
@@ -222,3 +249,177 @@ class CCHandler:
             return df
         else:
             print("Failed to retrieve data from the API.")
+
+    def transaction_type_count(self):
+        # Group by transaction type and count the number of transactions
+        transaction_count = self.creditdf.groupBy("TRANSACTION_TYPE").count().alias("transaction_count")
+
+        # Sort the transactions by count in descending order
+        sorted_transactions = transaction_count.orderBy("count", ascending=False).collect()
+
+        # Get transaction types and counts
+        transaction_types = [row["TRANSACTION_TYPE"] for row in sorted_transactions]
+        transaction_count = [row["count"] for row in sorted_transactions]
+
+        # Plot transaction types and counts
+        bars = plt.bar(transaction_types, transaction_count)
+        plt.xlabel("Transaction Type")
+        plt.ylabel("Transaction Count")
+        plt.title("Transaction Type vs Transaction Count")
+        plt.xticks(rotation=70)
+
+        # Labels and colors for readability
+        bars[0].set_color("#dd6e42")
+        for bar in bars[1:]:
+            bar.set_color("#4f6d7a")
+
+        for i in range(len(transaction_types)):
+            plt.text(i, transaction_count[i], str(transaction_count[i]), ha="center", va="bottom").set_color("#4f6d7a")
+
+        plt.show()
+
+    def state_customer_count(self):
+        # Group by state and count the number of customers
+        customer_count = self.customerdf.groupBy("CUST_STATE").agg({"SSN": "count"}).alias("customer_count")
+
+        # Sort the states by count in descending order
+        sorted_states = customer_count.orderBy("count(SSN)", ascending=False).collect()
+
+        # Get states and customer counts
+        states = [row["CUST_STATE"] for row in sorted_states]
+        customer_count = [row["count(SSN)"] for row in sorted_states]
+
+        # Plot states and customer counts
+        bars = plt.bar(states, customer_count)
+        plt.xlabel("State")
+        plt.ylabel("Customer Count")
+        plt.title("State vs Customer Count")
+        plt.xticks(rotation=70)
+
+        # Labels and colors for readability
+        bars[0].set_color("#dd6e42")
+        for bar in bars[1:]:
+            bar.set_color("#4f6d7a")
+
+        plt.text(0, customer_count[0], str(customer_count[0]), ha="center", va="bottom")
+
+        plt.show()
+
+    def top_10_customer(self):
+        # Group by customer SSN and sum the transaction amounts
+        customer_transactions = self.creditdf.groupBy("CUST_SSN").agg({"TRANSACTION_VALUE": "sum"}).alias("transaction_amount")
+
+        # Sort the transactions by sum in descending order
+        top_10_customers = customer_transactions.orderBy("sum(TRANSACTION_VALUE)", ascending=False).limit(10).collect()
+
+        # Get top 10 customers and transaction sums
+        customer_ssn = [str(row["CUST_SSN"]) for row in top_10_customers]
+        transaction_amount = [row["sum(TRANSACTION_VALUE)"] for row in top_10_customers]
+
+        # Plot customer SSNs and transaction sums
+        bars = plt.bar(customer_ssn, transaction_amount)
+        plt.xlabel("Customer")
+        plt.ylabel("Total Transaction Amount")
+        plt.title("Top 10 Customers by Total Transaction Amount")
+        plt.xticks(rotation=70)
+
+        # Labels and colors for readability
+        bars[0].set_color("#dd6e42")
+        for bar in bars[1:]:
+            bar.set_color("#4f6d7a")
+
+        plt.show()
+
+    def approved_selfemploy(self):
+        # Filter and count self-employed applicants
+        self_employed_approved = self.loandf.filter(col("Self_Employed") == "Yes").filter(col("Application_Status") == "Y").count()
+        self_employed_total = self.loandf.filter(col("Self_Employed") == "Yes").count()
+
+        # Calculate percentage of approved applications for self-employed applicants
+        percentage_approved = (self_employed_approved / self_employed_total) * 100
+
+        # Plot percentage
+        labels = ['Approved', 'Rejected']
+        sizes = [percentage_approved, 100 - percentage_approved]
+        colors = ['#dd6e42', '#4f6d7a']
+        explode = (0.01, 0)
+
+        plt.pie(sizes, labels=labels, colors=colors, explode=explode, autopct='%1.1f%%', startangle=90)
+        plt.axis('equal') # plot circle graph
+        plt.title('Percentage of Approved Applications for Self-Employed Applicants')
+        plt.show()
+
+    def rejected_married_male(self):
+        # Filter and count rejected married male
+        rejected_married_male = self.loandf.filter(col("Gender") == "Male").filter(col("Married") == "Yes").filter(
+            col("Application_Status") == "N").count()
+        total_married_male = self.loandf.filter(col("Gender") == "Male").filter(col("Married") == "Yes").count()
+
+        # Calculate percentage of rejection for married male
+        percentage_rejected = (rejected_married_male / total_married_male) * 100
+
+        # Plotting percentage
+        labels = ['Rejected', 'Approved']
+        sizes = [percentage_rejected, 100 - percentage_rejected]
+        colors = ['#dd6e42', '#4f6d7a']
+        explode = (0.01, 0)
+
+        fig, ax = plt.subplots()
+        plt.pie(sizes, labels=labels, colors=colors, explode=explode, autopct='%1.1f%%', startangle=90)
+        plt.axis('equal')
+        plt.title('Percentage of Rejected Applications for Married Male Applicants')
+
+        plt.show()
+
+    def top_3_months(self):
+        # Group by month and calculate total amount of transaction value
+        monthly_total = self.creditdf.groupBy("MONTH").sum("TRANSACTION_VALUE")
+
+        # Sort result in desc order and select the top 3 months
+        top_3_months = monthly_total.orderBy(col("sum(TRANSACTION_VALUE)").desc()).limit(3)
+
+        # Get month names and corresponding total amount of transaction value
+        months = [calendar.month_name[row["MONTH"]] for row in top_3_months.collect()]
+        values = [round(row["sum(TRANSACTION_VALUE)"], 2) for row in top_3_months.collect()]
+
+        # Plotting graph
+        bars = plt.bar(months, values, width=0.5)
+        plt.xlabel("Month")
+        plt.ylabel("Total Amount of Transaction Value")
+        plt.title("Top Three Months with the Largest Transaction Data")
+
+        for bar in bars:
+            bar.set_color("#dd6e42")
+
+        for i in range(len(months)):
+            plt.text(i, values[i], str(values[i]), ha="center", va="bottom")
+
+        plt.show()
+
+    def branch_highest_value(self):
+        # Filter for only healthcare transactions
+        healthcare_trans = self.creditdf.filter(col("TRANSACTION_TYPE") == "Healthcare")
+
+        # Group by branch code and calculate the total value of healthcare transactions (showing top 10 in comparison)
+        branch_total = healthcare_trans.groupBy("BRANCH_CODE").sum("TRANSACTION_VALUE").orderBy(
+            col("sum(TRANSACTION_VALUE)").desc()).limit(10).collect()
+
+        # Extract the branch code and total dollar value
+        branch_code = [str(row["BRANCH_CODE"]) for row in branch_total]
+        total_value = [round(row["sum(TRANSACTION_VALUE)"], 2) for row in branch_total]
+
+        # Plotting graph
+        bars = plt.bar(branch_code, total_value)
+        plt.xlabel("Branch Code")
+        plt.ylabel("Total Transaction Dollar Value")
+        plt.title("Branch with the Highest Total Dollar Value of Healthcare Transactions\n(in Comparison to Top 10 HealthCare Transactions)")
+
+        # Labels and colors for readability
+        bars[0].set_color("#dd6e42")
+        for bar in bars[1:]:
+            bar.set_color("#4f6d7a")
+
+        plt.text(0, total_value[0], str(total_value[0]), ha="center", va="bottom")
+
+        plt.show()
+    
