@@ -106,7 +106,7 @@ class CCHandler:
 
         result = spark.sql(query).select(self.creditdf.TRANSACTION_ID, self.creditdf.DAY, self.creditdf.MONTH, self.creditdf.YEAR, self.creditdf.CREDIT_CARD_NO, 
                                         self.creditdf.CUST_SSN, self.creditdf.BRANCH_CODE, self.creditdf.TRANSACTION_TYPE, self.creditdf.TRANSACTION_VALUE)
-        result.show()
+        result.show(n=result.count(), truncate=False)
         
     def get_count_value(self, transaction_type, spark):
         self.creditdf.createOrReplaceTempView("transactions")
@@ -120,7 +120,7 @@ class CCHandler:
         """.format(transaction_type)
 
         result = spark.sql(query)
-        result.show()
+        result.show(n=result.count(), truncate=False)
 
     def get_value_total(self, state, spark):
         self.branchdf.createOrReplaceTempView("branches")
@@ -136,7 +136,7 @@ class CCHandler:
         """.format(state)
 
         result = spark.sql(query)
-        result.show()
+        result.show(n=result.count(), truncate=False)
 
     def get_customer(self, ssn, spark):
         self.customerdf.createOrReplaceTempView("customers")
@@ -149,7 +149,7 @@ class CCHandler:
         """.format(ssn)
 
         result = spark.sql(query)
-        result.show()
+        result.show(n=result.count(), truncate=False)
 
     def set_customer(self, ssn, updated_first_name, updated_middle_name, 
                      updated_last_name, updated_apt_no, 
@@ -179,7 +179,7 @@ class CCHandler:
                 if updated_cust_state != "":
                     customer["CUST_STATE"] = updated_cust_state
                 if updated_cust_zip != "":
-                    customer["CUST_ZIP"] = updated_cust_zip
+                    customer["CUST_ZIP"] = int(updated_cust_zip)
                 if updated_cust_phone != "":
                     customer["CUST_PHONE"] = updated_cust_phone
                 if updated_cust_email != "":

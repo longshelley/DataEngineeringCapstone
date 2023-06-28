@@ -1,16 +1,15 @@
 import os
 import keyboard
 from time import sleep
-from subprocess import call
 
 import input_checker
 from cc_handler import CCHandler
 
 def clear():
     # check and make call for specific operating system
-    _ = call('clear' if os.name == 'posix' else 'cls')
+    _ = os.system("clear" if os.name == "posix" else "cls")
 
-def main_menu(spark):
+def main_menu(CC, spark):
     
     while True:
         clear()
@@ -20,9 +19,9 @@ def main_menu(spark):
         print("3. Exit")
         choice = input("--> ")
         if choice == "1":
-            option_one(spark)
+            option_one(CC, spark)
         elif choice == "2":
-            option_two(spark)
+            option_two(CC, spark)
         elif choice == "3":
             print("Exiting...")
             sleep(3)
@@ -30,7 +29,7 @@ def main_menu(spark):
         else:
             print("Invalid choice. Please try again.")
 
-def option_one(spark):
+def option_one(CC, spark):
     while True:
         clear()
         print("Querying for Data:")
@@ -42,21 +41,21 @@ def option_one(spark):
         print("6. Go Back")
         choice = input("--> ")
         if choice == "1":
-            choice_1_1(spark)
+            choice_1_1(CC, spark)
         elif choice == "2":
-            choice_1_2(spark)
+            choice_1_2(CC, spark)
         elif choice == "3":
-            choice_1_3(spark)
+            choice_1_3(CC, spark)
         elif choice == "4":
-            choice_1_4(spark)
+            choice_1_4(CC, spark)
         elif choice == "5":
-            choice_1_5(spark)
+            choice_1_5(CC, spark)
         elif choice == "6":
-            main_menu()
+            main_menu(CC, spark)
         else:
             print("Invalid choice. Please try again.")
 
-def option_two():
+def option_two(CC, spark):
     while True:
         clear()
         print("Visualizations:")
@@ -70,89 +69,86 @@ def option_two():
         print("8. Go Back")
         choice = input("--> ")
         if choice == "1":
-            choice_2_1()
+            choice_2_1(CC, spark)
         elif choice == "2":
-            choice_2_2()
+            choice_2_2(CC, spark)
         elif choice == "3":
-            choice_2_3()
+            choice_2_3(CC, spark)
         elif choice == "4":
-            choice_2_4()
+            choice_2_4(CC, spark)
         elif choice == "5":
-            choice_2_5()
+            choice_2_5(CC, spark)
         elif choice == "6":
-            choice_2_6()
+            choice_2_6(CC, spark)
         elif choice == "7":
-            choice_2_7()
+            choice_2_7(CC, spark)
         elif choice == "8":
-            main_menu()
+            main_menu(CC, spark)
         else:
             print("Invalid choice. Please try again.")
 
-
-
-
-def choice_1_1(spark):
+def choice_1_1(CC, spark):
     clear()
     print("Transactions made by customers in given zip code for given month and year")
-    input_zip_code = input("Enter zip code: ")  #23223
-    input_month = int(input("Enter month: "))   #2
-    input_year = int(input("Enter year: "))     #2018
-    CCHandler.get_transactions(input_zip_code, input_month, input_year, spark)
+    input_zip_code = input_checker.zip_code()  #23223
+    input_month = input_checker.months()   #2
+    input_year = input_checker.years()     #2018
+    CC.get_transactions(input_zip_code, input_month, input_year, spark)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one()
+        option_one(CC, spark)
     
-def choice_1_2(spark):
+def choice_1_2(CC, spark):
     clear()
     print("The total number and values of transactions for given type")
     transaction_type = input("Enter transaction type: ").title()    #grocery
-    CCHandler.get_count_value(transaction_type, spark)
+    CC.get_count_value(transaction_type, spark)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one()
+        option_one(CC, spark)
 
-def choice_1_3(spark):
+def choice_1_3(CC, spark):
     clear()
     print("The total number and values of transactions for branches in a given state")
     state = input("Enter state abbreviation: ").upper() #ny
-    CCHandler.get_value_total( state, spark)
+    CC.get_value_total(state, spark)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one()
+        option_one(CC, spark)
 
-def choice_1_4(spark):
+def choice_1_4(CC, spark):
     clear()
     print("Check existing account details of a customer")
     ssn = int(input("Enter SSN: ")) #123459988
-    CCHandler.get_customer(ssn, spark)
+    CC.get_customer(ssn, spark)
 
     print("1. Modify the customer details")
     print("2. Show transactions made between two dates")
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice == "1":
-        select_1_4_1(ssn, spark)
+        select_1_4_1(CC, ssn, spark)
     elif choice == "2":
-        select_1_4_2(ssn, spark)
+        select_1_4_2(CC, ssn, spark)
     else:
-        option_one()
+        option_one(CC, spark)
 
-def choice_1_5():
+def choice_1_5(CC, spark):
     clear()
     print("Monthly bill for a credit card for given month and year")
     credit_card_number = int(input("Enter credit card number: ")) #4210653310061055
     input_month = int(input("Enter month: "))   #6
     input_year = int(input("Enter year: "))     #2018
-    CCHandler.get_monthly_bill(credit_card_number, input_month, input_year)
+    CC.get_monthly_bill(credit_card_number, input_month, input_year)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one()
+        option_one(CC, spark)
 
-def select_1_4_1(ssn):
+def select_1_4_1(CC, ssn, spark):
     clear()
     print("Modify the customer details")
     print("Press ENTER to skip")
@@ -163,10 +159,10 @@ def select_1_4_1(ssn):
     updated_street_name = input("Street name: ")
     updated_cust_city = input("City name: ")
     updated_cust_state = input("State: ")
-    updated_cust_zip = int(input("Zip code: "))
+    updated_cust_zip = input("Zip code: ")
     updated_cust_phone = input("Phone number: ")
     updated_cust_email = input("Email address: ")
-    CCHandler.set_customer(ssn, updated_first_name, updated_middle_name, 
+    CC.set_customer(ssn, updated_first_name, updated_middle_name, 
                 updated_last_name, updated_apt_no, 
                 updated_street_name, updated_cust_city,
                 updated_cust_state, updated_cust_zip, 
@@ -175,79 +171,79 @@ def select_1_4_1(ssn):
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one()
+        option_one(CC, spark)
 
-def select_1_4_2(ssn):
+def select_1_4_2(CC, ssn, spark):
     clear()
     print("Show transactions made between two dates")
     start_date = (input("Enter start date (YYYY-MM-DD): ")) #2018-04-01
     end_date = (input("Enter end date (YYYY-MM-DD): "))     #2018-08-04
     # Check to make sure end_date comes after start_date and follow format
-    CCHandler.get_transactions_between(start_date, end_date, ssn)
+    CC.get_transactions_between(start_date, end_date, ssn)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one()
+        option_one(CC, spark)
 
-def choice_2_1():
+def choice_2_1(CC, spark):
     clear()
     print("Which transaction type has a high rate of transactions")
-    CCHandler.transaction_type_count()
+    CC.transaction_type_count()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
 
-def choice_2_2():
+def choice_2_2(CC, spark):
     clear()
     print("Which state has a high number of customers")
-    CCHandler.state_customer_count()
+    CC.state_customer_count()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
 
-def choice_2_3():
+def choice_2_3(CC, spark):
     clear()
     print("The sum of all transactions for the top 10 customers")
-    CCHandler.top_10_customer()
+    CC.top_10_customer()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
 
-def choice_2_4():
+def choice_2_4(CC, spark):
     clear()
     print("The percentage of applications approved for self-employed applicants")
-    CCHandler.approved_selfemploy()
+    CC.approved_selfemploy()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
     
-def choice_2_5():
+def choice_2_5(CC, spark):
     clear()
     print("The percentage of rejection for married male applicants")
-    CCHandler.rejected_married_male()
+    CC.rejected_married_male()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
 
-def choice_2_6():
+def choice_2_6(CC, spark):
     clear()
     print("The top three months with the largest transaction data")
-    CCHandler.top_3_months()
+    CC.top_3_months()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
     
-def choice_2_7():
+def choice_2_7(CC, spark):
     clear()
     print("Which branch processed the highest total dollar value of healthcare transactions")
-    CCHandler.branch_highest_value()
+    CC.branch_highest_value()
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_two()
+        option_two(CC, spark)
