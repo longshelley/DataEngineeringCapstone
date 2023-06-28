@@ -16,7 +16,6 @@ if __name__ == "__main__":
         customerdf = spark.read.json("..\\DataEngineeringCapstone\\data\\cdw_sapp_customer.json")
 
         CC = CC(branchdf, creditdf, customerdf)
-        print(CC.branchdf)
 
         selections.main_menu(CC, spark)
 

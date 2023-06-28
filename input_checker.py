@@ -28,9 +28,12 @@ def months():
         input_month = input("Enter month: ").lower()
         if input_month in months:
             return months.get(input_month)
-        elif 1 <= int(input_month) <= 12:
-            return int(input_month)
-        else:
+        try:
+            if 1 <= int(input_month) <= 12:
+                return int(input_month)
+            else:
+                print("Invalid input. Must be a month either in word or numeral form.")
+        except ValueError:
             print("Invalid input. Must be a month either in word or numeral form.")
 
 def years():
@@ -42,3 +45,70 @@ def years():
         else:
             print("Invalid input. Must be 4 intergers.")
 
+def types():
+    while True:
+        trans_types = ["Grocery", "Education", "Entertainment", "Bills", "Gas", "Test", "Healthcare"]
+        transaction_type = input("Enter transaction type: ").title()
+        if transaction_type in trans_types:
+            return transaction_type
+        else:
+            print("Invalid input. Possible transactions:")
+            print("Grocery, Education, Entertainment, Bills, Gas, Test, Healthcare")
+
+def states():
+    while True:
+        us_states = {
+            "Alabama": "AL",
+            "Alaska": "AK",
+            "Arizona": "AZ",
+            "Arkansas": "AR",
+            "California": "CA",
+            "Colorado": "CO",
+            "Connecticut": "CT",
+            "Delaware": "DE",
+            "Florida": "FL",
+            "Georgia": "GA",
+            "Hawaii": "HI",
+            "Idaho": "ID",
+            "Illinois": "IL",
+            "Indiana": "IN",
+            "Iowa": "IA",
+            "Kansas": "KS",
+            "Kentucky": "KY",
+            "Louisiana": "LA",
+            "Maine": "ME",
+            "Maryland": "MD",
+            "Massachusetts": "MA",
+            "Michigan": "MI",
+            "Minnesota": "MN",
+            "Mississippi": "MS",
+            "Missouri": "MO",
+            "Montana": "MT",
+            "Nebraska": "NE",
+            "Nevada": "NV",
+            "New Hampshire": "NH",
+            "New Jersey": "NJ",
+            "New Mexico": "NM",
+            "New York": "NY",
+            "North Carolina": "NC",
+            "North Dakota": "ND",
+            "Ohio": "OH",
+            "Oklahoma": "OK",
+            "Oregon": "OR",
+            "Pennsylvania": "PA",
+            "Rhode Island": "RI",
+            "South Carolina": "SC",
+            "South Dakota": "SD",
+            "Tennessee": "TN",
+            "Texas": "TX",
+            "Utah": "UT",
+            "Vermont": "VT",
+            "Virginia": "VA",
+            "Washington": "WA",
+            "West Virginia": "WV",
+            "Wisconsin": "WI",
+            "Wyoming": "WY"
+        }
+        state = input("Enter state abbreviation: ")
+        if state.upper() in us_states:
+            return state.upper()

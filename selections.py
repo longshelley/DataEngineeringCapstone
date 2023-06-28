@@ -102,7 +102,7 @@ def choice_1_1(CC, spark):
 def choice_1_2(CC, spark):
     clear()
     print("The total number and values of transactions for given type")
-    transaction_type = input("Enter transaction type: ").title()    #grocery
+    transaction_type = input_checker.types()    #grocery
     CC.get_count_value(transaction_type, spark)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
@@ -112,7 +112,7 @@ def choice_1_2(CC, spark):
 def choice_1_3(CC, spark):
     clear()
     print("The total number and values of transactions for branches in a given state")
-    state = input("Enter state abbreviation: ").upper() #ny
+    state = input_checker.states() #ny
     CC.get_value_total(state, spark)
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
