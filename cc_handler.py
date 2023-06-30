@@ -1,10 +1,11 @@
 import calendar
 import requests
-import pyspark, json
+import json
 import matplotlib.pyplot as plt
+import pytz
+from datetime import datetime
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import col, concat, concat_ws, lit, substring, initcap, lower, regexp_replace, to_timestamp
-from pyspark.sql.types import StringType
+from pyspark.sql.functions import col, concat, concat_ws, lit, substring, initcap, lower, regexp_replace, to_timestamp, to_date
 
 class CCHandler:
     def __init__(self, branchdf, creditdf, customerdf):
@@ -157,7 +158,7 @@ class CCHandler:
                      updated_cust_state, updated_cust_zip, 
                      updated_cust_phone, updated_cust_email):
         # Read the JSON file
-        with open("..\\data\\cdw_sapp_customer.json", "r") as file:
+        with open("..\\DataEngineeringCapstone\\data\\cdw_sapp_customer.json", "r") as file:
             customers_json = [json.loads(line) for line in file]
 
         # Find the customer with the specified SSN and update their details
@@ -186,8 +187,16 @@ class CCHandler:
                     customer["CUST_EMAIL"] = updated_cust_email
                 break
 
+            def get_current_datetime():
+                timezone = pytz.timezone("America/New_York")
+                now = datetime.now(timezone)
+                formatted_datetime = now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+                return formatted_datetime[:-2] + ":" + formatted_datetime[-2:]
+
+            customer["LAST_UPDATED"] = get_current_datetime()
+
         # Write the updated customer data back to the JSON file
-        with open("..\\data\\cdw_sapp_customer.json", "w") as file:
+        with open("..\\DataEngineeringCapstone\\data\\cdw_sapp_customer.json", "w") as file:
             for customer in customers_json:
                 json.dump(customer, file)
                 file.write("\n")
@@ -209,18 +218,19 @@ class CCHandler:
 
     def get_transactions_between(self, start_date, end_date, ssn):
         # Filter credit based on SSN and date range
-        filtered_df = self.creditdf.filter((self.creditdf["CUST_SSN"] == ssn) &
-                                    (self.creditdf["YEAR"].between(start_date[:4], end_date[:4])) &
-                                    (self.creditdf["MONTH"].between(start_date[5:7], end_date[5:7])) &
-                                    (self.creditdf["DAY"].between(start_date[8:], end_date[8:])))
+        # Filter credit based on SSN and date range
+        date_df = self.creditdf.withColumn("DATE", to_date(concat(
+            self.creditdf["YEAR"], lit("-"), self.creditdf["MONTH"], lit("-"), self.creditdf["DAY"])))
+
+        filtered_df = date_df.filter((self.creditdf["CUST_SSN"] == ssn) & (col("DATE") >= start_date) & (col("DATE") <= end_date))
 
         # Sort by year, month, and day in descending order
-        sorted_df = filtered_df.orderBy(col("YEAR").desc(), col("MONTH").desc(), col("DAY").desc())
+        sorted_df = filtered_df.orderBy(self.creditdf["YEAR"].desc(), self.creditdf["MONTH"].desc(), self.creditdf["DAY"].desc())
 
         sorted_df = sorted_df.select(self.creditdf.TRANSACTION_ID, self.creditdf.YEAR, self.creditdf.MONTH, self.creditdf.DAY,
                                     self.creditdf.CREDIT_CARD_NO, self.creditdf.CUST_SSN, self.creditdf.BRANCH_CODE,
                                     self.creditdf.TRANSACTION_TYPE, self.creditdf.TRANSACTION_VALUE)
-        sorted_df.show()
+        sorted_df.show(n=sorted_df.count(), truncate=False)
 
     
 

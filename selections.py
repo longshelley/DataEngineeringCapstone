@@ -1,4 +1,5 @@
 import os
+import sys
 import keyboard
 from time import sleep
 
@@ -6,11 +7,12 @@ import input_checker
 from cc_handler import CCHandler
 
 def clear():
+    sys.stdout.write("\033[F\033[K")
     # check and make call for specific operating system
     _ = os.system("clear" if os.name == "posix" else "cls")
 
 def main_menu(CC, spark):
-    
+
     while True:
         clear()
         print("Select an option to continue:")
@@ -119,10 +121,13 @@ def choice_1_3(CC, spark):
     if choice:
         option_one(CC, spark)
 
-def choice_1_4(CC, spark):
+def choice_1_4(CC, spark, ssn=None):
     clear()
     print("Check existing account details of a customer")
-    ssn = int(input("Enter SSN: ")) #123459988
+    if ssn == None:
+        ssn = input_checker.ss_number() #123459988
+    else:
+        ssn = ssn
     CC.get_customer(ssn, spark)
 
     print("1. Modify the customer details")
@@ -139,11 +144,11 @@ def choice_1_4(CC, spark):
 def choice_1_5(CC, spark):
     clear()
     print("Monthly bill for a credit card for given month and year")
-    credit_card_number = int(input("Enter credit card number: ")) #4210653310061055
-    input_month = int(input("Enter month: "))   #6
-    input_year = int(input("Enter year: "))     #2018
+    credit_card_number = input_checker.cc_number() #4210653310061055
+    input_month = input_checker.months()   #6
+    input_year = input_checker.years()     #2018
     CC.get_monthly_bill(credit_card_number, input_month, input_year)
-    print("Press any other key to Go Back--> ")
+    print("\nPress any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
         option_one(CC, spark)
@@ -152,38 +157,65 @@ def select_1_4_1(CC, ssn, spark):
     clear()
     print("Modify the customer details")
     print("Press ENTER to skip")
-    updated_first_name = input("First name: ")
-    updated_middle_name = input("Middle name: ")
-    updated_last_name = input("Last name: ")
-    updated_apt_no = input("Apt no: ")
-    updated_street_name = input("Street name: ")
-    updated_cust_city = input("City name: ")
-    updated_cust_state = input("State: ")
-    updated_cust_zip = input("Zip code: ")
-    updated_cust_phone = input("Phone number: ")
-    updated_cust_email = input("Email address: ")
-    CC.set_customer(ssn, updated_first_name, updated_middle_name, 
-                updated_last_name, updated_apt_no, 
-                updated_street_name, updated_cust_city,
-                updated_cust_state, updated_cust_zip, 
-                updated_cust_phone, updated_cust_email)
-    print("Customer details updated and saved.")
-    print("Press any other key to Go Back--> ")
+    print("===============================================")
+    while True:
+        updated_first_name = input_checker.any_name("First")
+        updated_middle_name = input_checker.any_name("Middle")
+        updated_last_name = input_checker.any_name("Last")
+        updated_apt_no = input_checker.apt_no()
+        updated_street_name = input_checker.st_name()
+        updated_cust_city = input_checker.city_name()
+        updated_cust_state = input_checker.states()
+        updated_cust_zip = input_checker.zip_code()
+        updated_cust_phone = input_checker.phone_no()
+        updated_cust_email = input_checker.email()
+        
+        choice = input("Save? Y/N: ").upper()
+        while choice not in ['Y', 'N']:
+            sys.stdout.write("\033[F\033[K")
+            choice = input("Save? Y/N: ").upper()
+        if choice == "Y":
+            CC.set_customer(ssn, updated_first_name, updated_middle_name, 
+                        updated_last_name, updated_apt_no, 
+                        updated_street_name, updated_cust_city,
+                        updated_cust_state, updated_cust_zip, 
+                        updated_cust_phone, updated_cust_email)
+            
+            print("\nCustomer details updated and saved.")
+            print("Press any other key to Go Back--> ")
+            break
+
+        choice = input("Modify again? Y/N: ").upper()
+        while choice not in ['Y', 'N']:
+            sys.stdout.write("\033[F\033[K")
+            choice = input("Modify again? Y/N: ").upper()
+        if choice == "N":
+            break
+        sys.stdout.write("\033[12A\033[J")
+
     choice = keyboard.read_key()
     if choice:
-        option_one(CC, spark)
+        choice_1_4(CC, spark, ssn)
 
 def select_1_4_2(CC, ssn, spark):
     clear()
     print("Show transactions made between two dates")
-    start_date = (input("Enter start date (YYYY-MM-DD): ")) #2018-04-01
-    end_date = (input("Enter end date (YYYY-MM-DD): "))     #2018-08-04
-    # Check to make sure end_date comes after start_date and follow format
-    CC.get_transactions_between(start_date, end_date, ssn)
+    while True:
+        start_date = input_checker.any_date("start") #2018-04-01
+        end_date = input_checker.any_date("end")    #2018-08-04
+
+        # Check to make sure end_date comes after start_date and follow format
+        if end_date <= start_date:
+            print("End date must be after the start date. Please enter valid dates.")
+            continue
+
+        CC.get_transactions_between(start_date, end_date, ssn)
+        break
+
     print("Press any other key to Go Back--> ")
     choice = keyboard.read_key()
     if choice:
-        option_one(CC, spark)
+        choice_1_4(CC, spark, ssn)
 
 def choice_2_1(CC, spark):
     clear()
