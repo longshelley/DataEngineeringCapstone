@@ -29,7 +29,7 @@ Program writes to MYSQL database. A database called creditcard_capstone is neede
 To run the program, run the `__main__.py` file. This will display two main choices: queries and visualizations. Selected choice will lead to more options.
 
 ##
-Ohis project was a modest effort aimed at showcasing some proficiency in data engineering. Skills include:
+This project was a modest effort aimed at showcasing some proficiency in data engineering. Skills include:
 * MYSQL RDBMS
 * matplotlib, pyspark
 * Get requests and response
