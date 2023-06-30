@@ -23,13 +23,15 @@ The bank branch with the highest dollar value transaction is Branch 25 for Healt
 <p align="center"><img src="./img/TypeCompare.PNG"/></p>
 HealthCare is the 3rd highest total value and Branch 25 is in MI state.
 
+- Rest of the visualizations are in the `img` folder.
+
 ### Installing and Running the Program
 Program writes to MYSQL database. A database called creditcard_capstone is needed. SQL files can be found in 'sql' folder. The tables for the database are taken from the data files in data folder. Some python libraries are needed. Configurations and some python libraries needed are in src folder.
 
 To run the program, run the `__main__.py` file. This will display two main choices: queries and visualizations. Selected choice will lead to more options.
 
-##
-Ohis project was a modest effort aimed at showcasing some proficiency in data engineering. Skills include:
+## Conclusion
+This project was a modest effort aimed at showcasing some proficiency in data engineering. Skills include:
 * MYSQL RDBMS
 * matplotlib, pyspark
 * Get requests and response
