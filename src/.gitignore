@@ -1,8 +1,0 @@
-# Database URL and login details
-server = mysql
-host = localhost
-port = 3306
-database = creditcard_capstone
-# url = jdbc:mysql://localhost:3306/cdw_sapp
-username = root
-password = password
