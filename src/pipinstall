@@ -1,4 +1,0 @@
-#!pip install pyspark
-#!pip install numpy
-#!pip install matplotlib
-#!pip install requests
