@@ -28,7 +28,7 @@ HealthCare is the 3rd highest total value and Branch 25 is in MI state.
 ### Installing and Running the Program
 Program writes to MYSQL database. A database called creditcard_capstone is needed. SQL files can be found in 'sql' folder. The tables for the database are taken from the data files in data folder. Some python libraries are needed. Configurations and some python libraries needed are in src folder.
 
-To run the program, run the `__main__.py` file. This will display two main choices: queries and visualizations. Selected choice will lead to more options.
+To run the program, run the `__main__.py` file on terminal. This will display two main choices: queries and visualizations. Selected choice will lead to more options.
 
 ## Conclusion
 This project was a modest effort aimed at showcasing some proficiency in data engineering. Skills include:
@@ -36,3 +36,9 @@ This project was a modest effort aimed at showcasing some proficiency in data en
 * matplotlib, pyspark
 * Get requests and response
 * Python
+
+##### Things personally could have worked on with more time:
+* Adding and removing customers
+* Donut visualizations for loan data
+* Database schema with more detailed contraints
+* Turn running program into executable
