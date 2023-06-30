@@ -22,7 +22,8 @@ The bank branch with the highest dollar value transaction is Branch 25 for Healt
 - Just some interesting perspective but HealthCare is not the highest total dollar transactional value.
 <p align="center"><img src="./img/TypeCompare.PNG"/></p>
 HealthCare is the 3rd highest total value and Branch 25 is in MI state.
-- Rest of the visualizations are in `img` folder.
+
+- Rest of the visualizations are in the `img` folder.
 
 ### Installing and Running the Program
 Program writes to MYSQL database. A database called creditcard_capstone is needed. SQL files can be found in 'sql' folder. The tables for the database are taken from the data files in data folder. Some python libraries are needed. Configurations and some python libraries needed are in src folder.
